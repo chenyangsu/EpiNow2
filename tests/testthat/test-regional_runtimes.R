@@ -39,7 +39,6 @@ test_that("regional_runtimes saves timings to the target folder", {
 })
 
 test_that("regional_runtimes reads the runtime saved for each region", {
-  skip("Known bug, see #1570")
   regional_out <- example_regional_output()
   target_folder <- withr::local_tempdir()
   write_regional_results(regional_out$regional, target_folder)
@@ -49,5 +48,25 @@ test_that("regional_runtimes reads the runtime saved for each region", {
   )
   expected <- regional_out$timings[order(region)]
   expect_equal(runtimes$region, expected$region)
+  expect_s3_class(runtimes$time, "difftime")
   expect_equal(as.numeric(runtimes$time), as.numeric(expected$time))
+})
+
+test_that("regional_runtimes handles a region with a missing runtime file", {
+  regional_out <- example_regional_output()
+  target_folder <- withr::local_tempdir()
+  write_regional_results(regional_out$regional, target_folder)
+  unlink(file.path(target_folder, "realland", "latest", "runtime.rds"))
+
+  runtimes <- suppressWarnings(
+    regional_runtimes(target_folder = target_folder, return_output = TRUE)
+  )
+  expected <- regional_out$timings[order(region)]
+  expect_equal(runtimes$region, expected$region)
+  expect_s3_class(runtimes$time, "difftime")
+  expect_true(is.na(runtimes[region == "realland"]$time))
+  expect_equal(
+    as.numeric(runtimes[region == "testland"]$time),
+    as.numeric(expected[region == "testland"]$time)
+  )
 })

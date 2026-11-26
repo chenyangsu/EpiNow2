@@ -34,6 +34,7 @@
 
 ## Bug fixes
 
+- A bug was fixed where `regional_runtimes()` repeated the first region's runtime for all regions and dropped the `difftime` class when reading runtimes from `target_folder`.
 - A bug was fixed where the number of Gaussian process basis functions was calculated from a time series length that did not match the one used in the Stan model.
 - A bug was fixed where the Gaussian process lengthscale was rescaled by the number of time points rather than their half-range, making the lengthscale slightly shorter than specified.
 - A bug was fixed where disabling the weekly reporting effect produced a spurious convergence warning from a degenerate day-of-week simplex.

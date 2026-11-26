@@ -575,10 +575,12 @@ regional_runtimes <- function(regional_output = NULL,
     regions <- get_regions(target_folder)
     timings <- data.table(
       region = regions,
-      time = unlist(map(regions, ~ safe_read(file.path(
-        target_folder, ., target_date,
-        "runtime.rds"
-      )))[[1]])
+      time = map_vec(regions, function(region) {
+        safe_read(file.path(
+          target_folder, region, target_date,
+          "runtime.rds"
+        ))$result %||% NA
+      })
     )
   }
   if (!is.null(target_folder)) {
